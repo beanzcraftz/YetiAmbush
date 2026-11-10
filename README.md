@@ -1,172 +1,97 @@
 # YetiAmbush 💧
 
-> **A native Linux background hydration daemon and PyQt6 configuration suite tailored for CachyOS and KDE Plasma, architected to eliminate ADHD notification habituation.**
+> **A native PyQt6 Linux System Tray application and dark-themed dashboard built for CachyOS & KDE Plasma, designed to beat ADHD notification blindness.**
 
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20CachyOS%20%7C%20Arch-blue.svg)](https://cachyos.org/)
 [![Desktop](https://img.shields.io/badge/Desktop-KDE%20Plasma%206-brightgreen.svg)](https://kde.org/plasma-desktop/)
 [![Framework](https://img.shields.io/badge/GUI-PyQt6-green.svg)](https://riverbankcomputing.com/software/pyqt/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## 🧠 Why YetiAmbush? (The ADHD Hydration Problem)
+## 🧠 Why YetiAmbush?
 
-Standard hydration reminder apps fail individuals with ADHD due to **notification blindness**. When alerts fire at predictable times with gentle, easily dismissable chimes, the hyperfocused brain rapidly filters them out as ambient background noise.
+Standard hydration apps fail ADHD brains due to **notification habituation**. When predictable reminders pop up quietly, hyperfocus filters them out immediately.
 
-**YetiAmbush** combats this with psychological "ambush" mechanics:
-1. **Unpredictable Timing (Random Ambush)**: Rather than firing on a predictable schedule, alerts hit you at randomized intervals within a configurable min/max range (e.g. anywhere between 30 and 90 minutes). Your brain cannot predict or habituate to the pattern.
-2. **Aggressive Persistence (`-u critical`)**: Alerts are dispatched with freedesktop critical urgency. In KDE Plasma, critical notifications ignore standard auto-dismiss timeouts and remain pinned to your screen until explicitly acknowledged.
-3. **Auditory Cue Dual-Trigger**: Concurrently plays a droplet audio cue (`drop.wav`) directly through PipeWire (`pw-play`) to break hyperfocus tunnels.
-4. **Unhinged Psychological Prompts**: A randomized array of sarcastic, funny, and unhinged reminders that demand attention (*"You are basically a complicated houseplant with anxiety. Water yourself."*).
+**YetiAmbush** solves this without needing terminal commands, cron jobs, or background shell scripts:
+1. **Persistent System Tray Integration (SNI)**: Launches minimized into your KDE Plasma / FreeDesktop system tray. Left-click or double-click the Yeti icon to toggle the Dashboard; right-click for instant snooze, drink logging, stop/mute, or quit controls.
+2. **Unpredictable Random Ambush Mode (or Fixed Interval)**: Configurable via synchronized sliders and spinboxes (5–180 mins), defaulting to randomized intervals to keep your brain from predicting alerts.
+3. **Choice of Delivery Modes**:
+   * **Native Desktop Notifications**: Uses `notify-send -u critical` (with FreeDesktop D-Bus fallback) on a non-blocking `QThread` so alerts stay pinned in KDE Plasma with inline `[Drank It 💧]`, `[5m ⏰]`, and `[15m ⏳]` action buttons.
+   * **Visual Ambush Popup**: Dark-themed, always-on-top PyQt6 popup dialog centered on your screen with live progress bar and quick buttons.
+4. **One-Click "Stop Notifications / I've Drunk Enough"**: Immediately halts reminder timers for the rest of the session from either the tray menu or the dashboard—zero UI freezing.
+5. **Yeti Bottle Refill Tracking & Midnight Rollover**: Track progress toward your daily goal in ml and **Yeti Refills** (`1.39L`, `796 ml`, or `Custom`), with automatic midnight reset.
 
 ---
 
 ## ✨ Core Features
 
-* **Native KDE Plasma 6 & CachyOS Architecture**: 100% native Linux implementation using standard D-Bus notification protocols via `/usr/bin/notify-send`. Zero electron or heavy browser wrappers.
-* **Interactive Plasma Action Buttons**: Critical alerts feature inline buttons rendered directly in KDE Plasma's notification widget:
-  * `[Drank It 💧]` — Logs intake, evaluates your daily target, and resets the ambush timer.
-  * `[5m ⏰]` — Quick 5-minute snooze.
-  * `[15m ⏳]` — 15-minute snooze.
-* **Yeti Bottle Refill Tracking**: Tracks daily hydration in terms of actual **Yeti Refills** rather than abstract cups or milliliters:
-  * Presets for **1.39L (1390 ml)** and **796 ml** tumblers, plus **Custom** volumes.
-  * Dynamically calculates how many Yeti refills remain to hit your daily goal (e.g., *1.4 Yeti Refills per day*).
-* **Automated Midnight Rollover**: Background daemon continuously evaluates date boundaries. As soon as the clock strikes midnight, your daily intake automatically resets to `0 ml`, preventing yesterday's tally from polluting the next day.
-* **Quiet Hours Scheduling**: Define sleep/silence periods (e.g., `22:00` to `08:00`). Handles overnight spans crossing midnight seamlessly.
-* **PyQt6 Configuration GUI**: Clean, native KDE Breeze theme settings window equipped with `NoWheel` scroll-safe widgets to prevent mouse-wheel accidents while scrolling.
-* **systemd User Daemon**: Runs silently in the background via `systemctl --user`, starting automatically upon login.
-* **UNIX Signals & CLI Controls**: Support for `SIGHUP` (hot reload), `SIGUSR1` (test ambush), and `SIGUSR2` (log drink) for KDE shortcut integration.
+* **System Tray Menu**:
+  * **Open Settings / Dashboard**
+  * **Log Drink** (quick-log your configured drink volume)
+  * **Pause / Snooze Notifications**: `30m`, `1h`, or `Rest of Day`
+  * **Stop / Mute for Now** (and **Resume Notifications** when halted)
+  * **Quit** (cleanly stops timers and background threads)
+* **Modern Dark Dashboard UI (`PyQt6`)**:
+  * Non-blocking `QTimer` + `QThread` notification architecture.
+  * Closing the window (`X`) minimizes smoothly to the system tray instead of killing the app.
+  * Mouse-wheel safe (`NoWheel`) sliders, spinboxes, combo boxes, and time pickers so scrolling never alters settings accidentally.
+  * Custom audio cue picker (defaults to `drop.wav` via PipeWire `pw-play`, with `paplay`/`aplay`/`QSoundEffect` fallbacks) and mute toggle.
+  * **Start with System** checkbox managing `~/.config/autostart/yetiambush.desktop`.
+  * Persists all configuration atomically in `~/.config/yetiambush/config.json`.
 
 ---
 
-## 📦 File Layout
+## 📦 Project Structure
 
-| Path | Purpose |
+| File | Purpose |
 |---|---|
-| `yetiambush_daemon.py` | Background daemon service handling timers, signals, and notifications. |
-| `yetiambush_gui.py` | Native PyQt6 configuration manager and status monitor. |
-| `yetiambush.service` | systemd user service unit definition. |
-| `yetiambush-config.desktop` | Desktop application entry for KDE Application Launcher / KRunner. |
-| `drop.wav` | Water droplet audio cue played via PipeWire. |
-| `icon.png` | Transparent 256x256 high-resolution Yeti icon. |
+| `yetiambush.py` | Unified single-instance application entry point (Tray + GUI + IPC). |
+| `config.py` | JSON config persistence, midnight rollover, quote arrays, and autostart `.desktop` management. |
+| `engine.py` | Non-blocking `QTimer` scheduler, pause/snooze/stop state machine, and intake tracking. |
+| `notifier.py` | Asynchronous `QThread` `notify-send` / D-Bus worker, audio cue playback, and visual popup window. |
+| `ui.py` | Modern dark-themed `SettingsWindow` and `YetiTrayController` (SNI). |
+| `yetiambush.desktop` | FreeDesktop application launcher entry. |
+| `requirements.txt` | Python dependencies (`PyQt6>=6.5.0`). |
+| `drop.wav` / `icon.png` | Water drop sound effect and transparent 256×256 Yeti icon. |
 
 ---
 
-## 🚀 Installation & Quick Start
+## 🚀 Installation & Setup
 
-### 1. Prerequisites (Arch Linux / CachyOS)
-
-Ensure the native notification tools, PipeWire utilities, and PyQt6 are installed:
+### 1. Dependencies (CachyOS / Arch Linux)
 
 ```bash
-# Core notification and audio dependencies
+# Notification & PipeWire audio tools
 sudo pacman -S libnotify pipewire-audio
 
-# Python PyQt6 GUI framework (via pacman or pip)
-sudo pacman -S python-pyqt6
-# Or via user pip:
-# pip install --user PyQt6
+# Python dependencies
+pip install --user -r requirements.txt
+# Or via Arch package manager:
+# sudo pacman -S python-pyqt6
 ```
 
-### 2. Install Executables & Assets
-
-Clone the repository and set up user paths:
+### 2. Install Launcher & Assets
 
 ```bash
 git clone https://github.com/beanzcraftz/YetiAmbush.git
 cd YetiAmbush
 
-# Make scripts executable
-chmod +x yetiambush_daemon.py yetiambush_gui.py
+chmod +x yetiambush.py
+mkdir -p ~/.local/bin ~/.config/yetiambush ~/.local/share/applications ~/.local/share/icons/hicolor/256x256/apps
 
-# Symlink binaries to ~/.local/bin (ensure ~/.local/bin is in your $PATH)
-mkdir -p ~/.local/bin
-ln -sf $(pwd)/yetiambush_daemon.py ~/.local/bin/yetiambush-daemon
-ln -sf $(pwd)/yetiambush_gui.py ~/.local/bin/yetiambush-gui
-
-# Install persistent configuration directory and assets
-mkdir -p ~/.config/yetiambush
-cp drop.wav ~/.config/yetiambush/
-cp icon.png ~/.config/yetiambush/
-
-# Install application icon for KDE Plasma
-mkdir -p ~/.local/share/icons/hicolor/256x256/apps
+ln -sf "$(pwd)/yetiambush.py" ~/.local/bin/yetiambush
+cp drop.wav icon.png ~/.config/yetiambush/
 cp icon.png ~/.local/share/icons/yetiambush.png
 cp icon.png ~/.local/share/icons/hicolor/256x256/apps/yetiambush.png
 
-# Install KDE desktop launcher
-mkdir -p ~/.local/share/applications
-cp yetiambush-config.desktop ~/.local/share/applications/
+cp yetiambush.desktop ~/.local/share/applications/yetiambush.desktop
 update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
 ```
 
-### 3. Enable Background Service (`systemd`)
+### 3. Launch
 
-Install and start the background daemon as a systemd user unit:
+Open your KDE Application Launcher (or press `Alt + Space` for KRunner), search for **YetiAmbush**, and launch it!
 
-```bash
-mkdir -p ~/.config/systemd/user
-cp yetiambush.service ~/.config/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable --now yetiambush.service
-```
-
-Verify that the service is active and running:
-
-```bash
-systemctl --user status yetiambush.service
-```
-
----
-
-## 🎛️ Usage & Management
-
-### Launching the Configuration GUI
-Press `Meta` (Super/Windows key) and type **YetiAmbush**, or launch from terminal:
-```bash
-yetiambush-gui
-```
-
-### CLI Commands
-The daemon utility also functions as an interactive command-line interface:
-
-```bash
-# Check live countdown timer, daemon PID, and Yeti intake metrics
-yetiambush-daemon --status
-
-# Fire an immediate test alert to preview quotes and audio
-yetiambush-daemon --test
-
-# Log a drink manually (drank early) and reset the timer
-yetiambush-daemon --drink        # logs default amount (e.g. 250 ml)
-yetiambush-daemon --drink 500    # logs 500 ml
-
-# Snooze alerts (e.g. Meeting Mode for 60 minutes)
-yetiambush-daemon --snooze 60
-
-# Hot-reload configuration without restarting the service
-yetiambush-daemon --reload
-
-# Inspect configuration JSON
-yetiambush-daemon --config
-```
-
----
-
-## ⚡ Optional: KDE Global Keyboard Shortcut
-
-To log a drink instantly whenever you finish your Yeti without opening a window:
-
-1. Open **KDE System Settings** $\rightarrow$ **Keyboard** $\rightarrow$ **Shortcuts** (or **Custom Commands**).
-2. Click **Add New** $\rightarrow$ **Command**.
-3. Name it **"YetiAmbush: Log Drink"**.
-4. Set Command to: `yetiambush-daemon --drink`
-5. Assign a shortcut (e.g. `Meta + W` or `Meta + Alt + H`).
-
-Whenever you hydrate early, tap your shortcut—it logs your intake and reschedules the next ambush automatically!
-
----
-
-## 📜 License
-
-MIT License. Designed and crafted for ADHD hydration mastery.
+* On first launch, YetiAmbush minimizes directly to your system tray.
+* Left-click (or double-click) the Yeti icon to open the **Dashboard & Settings** window, or launch YetiAmbush again from your app menu to raise the window.
+* Toggle **"Start with System"** inside Settings to automatically launch minimized at login.

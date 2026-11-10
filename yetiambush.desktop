@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=YetiAmbush
+GenericName=ADHD Hydration Reminder
+Comment=ADHD-friendly hydration reminder tray app and Yeti tracker
+Exec=yetiambush
+Icon=yetiambush
+Terminal=false
+Categories=Utility;
+StartupNotify=true
+StartupWMClass=YetiAmbush
+Keywords=water;hydration;reminder;adhd;yeti;ambush;health;
